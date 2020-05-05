@@ -26,7 +26,7 @@ namespace CompanyName.MyMeetings.Modules.Meetings.Application.Meetings.AddMeetin
 
         public async Task<Unit> Handle(AddMeetingAttendeeCommand request, CancellationToken cancellationToken)
         {
-            var meeting = await _meetingRepository.GetByIdAsync(new MeetingId(request.MeetingId));
+            var meeting = await _meetingRepository.GetByIdAsync(request.MeetingId);
             
             var meetingGroup = await _meetingGroupRepository.GetByIdAsync(meeting.GetMeetingGroupId());
 
