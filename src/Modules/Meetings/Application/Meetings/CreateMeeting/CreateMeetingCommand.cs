@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CompanyName.MyMeetings.Modules.Meetings.Application.Contracts;
+using CompanyName.MyMeetings.Modules.Meetings.Domain.MeetingGroups;
+using CompanyName.MyMeetings.Modules.Meetings.Domain.Meetings;
+using CompanyName.MyMeetings.Modules.Meetings.Domain.Members;
 
 namespace CompanyName.MyMeetings.Modules.Meetings.Application.Meetings.CreateMeeting
 {
@@ -8,49 +12,36 @@ namespace CompanyName.MyMeetings.Modules.Meetings.Application.Meetings.CreateMee
     {
         public CreateMeetingCommand(Guid meetingGroupId, string title, DateTime termStartDate, DateTime termEndDate, string description, string meetingLocationName, string meetingLocationAddress, string meetingLocationPostalCode, string meetingLocationCity, int? attendeesLimit, int guestsLimit, DateTime? rsvpTermStartDate, DateTime? rsvpTermEndDate, decimal? eventFeeValue, string eventFeeCurrency, List<Guid> hostMemberIds)
         {
-            MeetingGroupId = meetingGroupId;
+            MeetingGroupId = new MeetingGroupId(meetingGroupId);
             Title = title;
-            TermStartDate = termStartDate;
-            TermEndDate = termEndDate;
+            MeetingTerm = MeetingTerm.CreateNewBetweenDates(termStartDate, termEndDate);
             Description = description;
-            MeetingLocationName = meetingLocationName;
-            MeetingLocationAddress = meetingLocationAddress;
-            MeetingLocationPostalCode = meetingLocationPostalCode;
-            MeetingLocationCity = meetingLocationCity;
+            MeetingLocation = MeetingLocation.CreateNew(meetingLocationName, meetingLocationAddress, meetingLocationPostalCode, meetingLocationCity);
             AttendeesLimit = attendeesLimit;
             GuestsLimit = guestsLimit;
-            RSVPTermStartDate = rsvpTermStartDate;
-            RSVPTermEndDate = rsvpTermEndDate;
-            EventFeeValue = eventFeeValue;
-            EventFeeCurrency = eventFeeCurrency;
-            HostMemberIds = hostMemberIds;
+            RSVPTerm = Term.CreateNewBetweenDates(rsvpTermStartDate, rsvpTermEndDate);
+            EventFee = eventFeeValue.HasValue ? MoneyValue.Of(eventFeeValue.Value, eventFeeCurrency) : MoneyValue.Undefined;
+            HostMemberIds = hostMemberIds.Select(x => new MemberId(x));
         }
 
-        public Guid MeetingGroupId { get; }
+        public MeetingGroupId MeetingGroupId { get; }
 
         public string Title { get; }
 
-        public DateTime TermStartDate { get; }
-        public DateTime TermEndDate { get; }
+        public MeetingTerm MeetingTerm { get; }
 
         public string Description { get; }
 
-        public string MeetingLocationName { get; }
-        public string MeetingLocationAddress { get; }
-        public string MeetingLocationPostalCode { get; }
-        public string MeetingLocationCity { get; }
+        public MeetingLocation MeetingLocation { get; }
 
         public int? AttendeesLimit { get; }
 
         public int GuestsLimit { get; }
 
-        public DateTime? RSVPTermStartDate { get; }
+        public Term RSVPTerm { get; }
 
-        public DateTime? RSVPTermEndDate { get; }
+        public MoneyValue EventFee { get; }
 
-        public decimal? EventFeeValue { get; }
-        public string EventFeeCurrency { get; }
-
-        public List<Guid> HostMemberIds { get; }
+        public IEnumerable<MemberId> HostMemberIds { get; }
     }
 }

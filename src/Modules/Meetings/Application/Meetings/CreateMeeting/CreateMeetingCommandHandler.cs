@@ -27,20 +27,18 @@ namespace CompanyName.MyMeetings.Modules.Meetings.Application.Meetings.CreateMee
 
         public async Task<Unit> Handle(CreateMeetingCommand request, CancellationToken cancellationToken)
         {
-            var meetingGroup = await _meetingGroupRepository.GetByIdAsync(new MeetingGroupId(request.MeetingGroupId));
-
-            var hostsMembersIds = request.HostMemberIds.Select(x => new MemberId(x)).ToList();
+            var meetingGroup = await _meetingGroupRepository.GetByIdAsync(request.MeetingGroupId);
 
             var meeting = meetingGroup.CreateMeeting(
                 request.Title,
-                MeetingTerm.CreateNewBetweenDates(request.TermStartDate, request.TermStartDate), 
+                request.MeetingTerm, 
                 request.Description,
-                MeetingLocation.CreateNew(request.MeetingLocationName, request.MeetingLocationAddress, request.MeetingLocationPostalCode, request.MeetingLocationCity),
+                request.MeetingLocation,
                 request.AttendeesLimit,
                 request.GuestsLimit,
-                Term.CreateNewBetweenDates(request.RSVPTermStartDate, request.RSVPTermEndDate),
-                request.EventFeeValue.HasValue ? MoneyValue.Of(request.EventFeeValue.Value, request.EventFeeCurrency) : MoneyValue.Undefined,
-                hostsMembersIds,
+                request.RSVPTerm,
+                request.EventFee,
+                request.HostMemberIds.ToList(),
                 _memberContext.MemberId);
 
             await _meetingRepository.AddAsync(meeting);
